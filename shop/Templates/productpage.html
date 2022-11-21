@@ -1,0 +1,265 @@
+{% extends 'base.html'%}
+{% block title%}Product Page {% endblock%}
+{% load static %}
+
+{% block css %} 
+{% endblock%}
+
+{% block body%}
+<div class="container prodimg my-4">
+    <div class="row">
+    <div class="col-md-4">
+    <div class="row">
+        <img src="/media/{{product.productImage}}" width="233px" height="385px">
+    </div>
+        <div class="row">
+            <div class="d-grid gap-2"><button id="buynow"class="btn btn-success my-2">Buy Now</button></div>
+            <!-- <button class="btn btn-dark" id="divp{{product.id}}">Add To Cart</button> -->
+            <span class="divpr d-grid gap-2" id="divpr{{product.id}}"><button id="pr{{product.id}}" class="btn btn-dark cart">Add To Cart</button>
+            </span>
+               <div class="d-grid gap-2"><button onclick="confirmReturn()" class="btn btn-dark my-2">Return Item</button></div>
+        </div>
+
+    </div>
+
+    <div class="productdetails col-md-8">
+        <h2 id="namepr{{product.id}}">{{product.productName}}</h2>
+        <p class="prodfontsize" id="pricepr{{product.id}}"><b>Rs.{{product.price}} </b></p>
+        <p class="prodfontsize">{{product.description}}</p>
+
+
+    </div>
+    </div>
+
+
+</div>
+
+
+{% endblock%}
+
+
+
+{% block js %} 
+<script>
+
+for (var item in cart) {
+        console.log(item)
+     if (cart[item][0]==0){
+        delete cart[item];
+     }
+    }
+  var sum=0;
+for (var item in cart) {
+     sum=sum+cart[item][0];}
+
+document.getElementById('cart').innerHTML =sum;
+
+console.log('working')
+    console.log(localStorage.getItem('cart')==undefined)
+    if(localStorage.getItem('cart') == null )
+{
+var cart={};
+}
+
+else{
+  
+cart= JSON.parse(localStorage.getItem('cart'));
+console.log(localStorage.getItem('cart'))
+//document.getElementById('cart').innerHTML = Object.keys(cart).length;
+// updateCart(cart);
+for (var item in cart) {
+     sum=sum+cart[item][0];
+
+}
+document.getElementById('cart').innerHTML =sum;
+}
+
+$('.divpr').on('click', 'button.cart', function(){
+  $('#popcart').popover('hide');
+console.log('clicked');
+var idstr= this.id.toString();
+
+if(cart[idstr]!= undefined) {
+// cart[idstr] = cart[idstr]+1;
+qty = cart[idstr][0] + 1;
+}
+
+
+else{
+  qty = 1;
+        name = document.getElementById('name'+idstr).innerHTML
+        price = document.getElementById('price'+ idstr).innerHTML
+        cart[idstr] = [qty, name, parseInt(price)];
+}
+updateCart(cart);
+
+
+//console.log(cart);
+localStorage.setItem('cart', JSON.stringify(cart));
+
+});
+
+// for (var item in cart) {
+//       sum=sum+cart[item][0];
+      
+// }
+// document.getElementById('cart').innerHTML = sum;
+
+
+$(function(){
+   $(document).on('click',"#checkout",function () {
+    for (var item in cart) {
+        console.log(item)
+     if (cart[item][0]==0){
+        delete cart[item];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // localStorage.clear();
+     }
+    }
+    if (localStorage['cart']=='{}') {
+      console.log('hi')
+     alert("Your Cart is empty!");
+}
+
+    else{
+      console.log('hi2') 
+      window.location.href='/checkout/'
+    }
+    
+
+
+   });
+});
+
+$(function(){
+   $(document).on('click',".clearcart",function () {
+      clearCart();
+   });
+});
+
+function clearCart() {
+  console.log('in clear cart')
+    cart = JSON.parse(localStorage.getItem('cart'));
+    for (var item in cart) {
+        document.getElementById('divpr{{product.id}}').innerHTML = '<button id="' + item + '" class="btn btn-dark cart">Add To Cart</button>'
+    }
+    localStorage.clear();
+    cart = {};
+    $('#popcart').popover('hide');
+    updateCart(cart);
+}
+
+
+updatePopover(cart)
+
+function updatePopover(cart)
+{
+  
+    var popStr = "";
+    popStr = popStr + "<h5> Cart for your items in my shopping cart </h5><div class='mx-2 my-2'>";
+    var i = 1;
+
+    for (var item in cart) {
+        console.log(item)
+     if (cart[item][0]==0){
+        delete cart[item];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // localStorage.clear();
+     }
+    }
+    
+    for (var item in cart){
+        
+        popStr = popStr + "<b>" + i + "</b>. ";
+        console.log(cart[item][1],"--------------------")
+        
+        // popStr = popStr + document.getElementById(cart[item][1]).innerHTML.slice(0, 30) + " | Qty: " + cart[item][0] + '<br>';
+        popStr = popStr + cart[item][1].slice(0, 30) + " | Qty: " + cart[item][0] + '<br>';
+        i = i+1;
+    }
+
+    
+    //popStr = popStr + "</div> " 
+
+    popStr = popStr + '</div> <a class="btn btn-dark" id="checkout" role="button">Checkout</a> <a class="btn btn-dark clearcart" onclick="clearCart()" id ="clearCart" role="button">Clear Cart</a> '
+    // <a href="/checkout"></a>
+    //<button class='btn btn-dark' id ='checkout'> Checkout </button>
+    //<button class='btn btn-dark' onclick='clearCart()' id ='clearCart'>Clear Cart</button> "
+       console.log(popStr);
+   
+
+
+var popBottom = document.getElementById("popcart");
+    var popoverBottom = new bootstrap.Popover(popBottom, { 
+        placement : "bottom" , content : popStr , html : true
+    });    
+}
+
+function updateCart(cart) {
+ 
+ var sum=0;
+
+   for (var item in cart) {
+     sum=sum+cart[item][0];
+       document.getElementById('divpr{{product.id}}').innerHTML = "<button id='plus" + item + "' class='btn btn-dark plus'>+</button> <span style='text-align:center' id='val" + item + "''>" +cart[item][0] + "</span> <button id='minus" + item + "' class='btn btn-dark minus'> - </button>";
+      //document.getElementById('div' + item).innerHTML =
+     }
+
+   localStorage.setItem('cart', JSON.stringify(cart));
+   document.getElementById('cart').innerHTML =sum;
+   console.log(cart);
+   updatePopover(cart);
+   console.log('2')
+   
+}
+
+
+$('.divpr').on("click", "button.minus", function() {
+  $('#popcart').popover('hide');
+  console.log("minus")
+    a = this.id.slice(7, );
+    cart['pr' + a][0] = cart['pr' + a][0] - 1;
+    cart['pr' + a][0] = Math.max(0, cart['pr' + a][0]);
+    document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+    
+    updateCart(cart);
+    //updatePopover(cart);
+});
+$('.divpr').on("click", "button.plus", function() {
+  $('#popcart').popover('hide');
+  console.log("plus")
+    a = this.id.slice(6, );
+    cart['pr' + a][0] = cart['pr' + a][0] + 1;
+    document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+    
+    updateCart(cart);
+});
+
+
+
+
+$(function(){
+   $(document).on('click',"#buynow",function () {
+    if (localStorage['cart']=='{}'
+) {
+      console.log('hi')
+     alert("Your Cart is empty!");
+}
+    else{
+      console.log('hi2') 
+      window.location.href='/checkout/'
+    }
+
+   });
+});
+
+
+  function confirmReturn() {
+    // alert("Votre PDF a été généré");
+    var confirmation=confirm("Are you sure you want to return item?");
+    if (confirmation==true){
+        window.location.href='/refundRequest';}
+  }
+
+</script>
+{% endblock%}

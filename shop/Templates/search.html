@@ -1,0 +1,46 @@
+{% extends 'base.html'%}
+{% block title%}Shop {% endblock%}
+{% load static %}
+
+{% block js %} 
+
+    {% if msg|length != 0  %}
+    <script>
+    alert('{{msg}}');
+    windows.location.href='/'
+</script>
+{% endif  %}
+
+{% endblock%}
+
+{% block css %} 
+
+{% endblock%}
+{% block body%}
+
+<div class="container-fluid ">
+   
+    <div class="text-center">
+        <h2 class='m-4'  >Welcome to My Shop!</h2>
+      </div>
+<div class="container productCards">
+{% for i in product %}
+
+<!-- /media/Images/{{i.productImage}} -->
+
+<div class="card m-3 " style="width: 18rem;">
+    
+    <img src='/media/{{i.productImage}}'  class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{i.productName}}</h5>
+      <p class="card-text">$ {{i.price}}</p>
+      <a href="#" class="btn btn-dark">Add To Cart</a>
+    </div>
+  </div>
+
+{% endfor %} 
+</div>
+</div>
+{% endblock%}
+
+
